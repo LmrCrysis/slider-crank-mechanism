@@ -3,6 +3,20 @@
 **Author / People Involved:** Dhruv Chauhan (24JE0497)  
 **Discipline:** Mechanical Engineering / Theory of Machines & IC Engines
 
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests: 11 Passed](https://img.shields.io/badge/Tests-11%20Passed-brightgreen.svg)](tests/)
+[![Speed Range: 0-8000 RPM](https://img.shields.io/badge/Speed%20Range-0%20--%208000%20RPM-red.svg)]()
+[![Google Colab](https://img.shields.io/badge/Google%20Colab-Ready-orange.svg)](Slider_Crank_Simulation_Colab.ipynb)
+
+---
+
+## 🚀 Quick Links for Users
+- 🌐 **[Live Browser Simulator](index.html)** — Run the 60 FPS interactive HTML5 simulation directly with no software installation.
+- 📓 **[Interactive Google Colab Notebook](Slider_Crank_Simulation_Colab.ipynb)** — Run in the cloud with live parameter sweeps and graphs.
+- 📄 **[Executive Engineering Report](reports/engineering_report.html)** — View the auto-generated HTML design analysis report.
+- 💻 **Desktop Application:** Run [`run_gui.bat`](run_gui.bat) for native 2D animated desktop simulation with live scrubbing controls.
+
 ---
 
 ## 1. Project Overview & Aim
@@ -175,3 +189,24 @@ This project provides:
 1. **Zero-Cost Engineering Analysis**: Eliminates reliance on expensive commercial multibody dynamics packages (ADAMS, ANSYS Motion) for standard reciprocating engine design.
 2. **Theory of Machines Pedagogy**: Bridges textbook mechanical principles with software computation and interactive graphical visualization.
 3. **Engineering Synthesis**: Integrates kinematics, thermodynamics (indicator diagrams), multi-body dynamics, flywheel design, and torsional vibration analysis into a unified tool.
+
+---
+
+## 8. Publishing to GitHub & Free Cloud Hosting
+
+### Step 1: Push Repository to Your GitHub Account
+Create a new repository named `slider-crank-mechanism` on [GitHub](https://github.com/new), then run:
+```powershell
+git remote add origin https://github.com/<YOUR-GITHUB-USERNAME>/slider-crank-mechanism.git
+git branch -M main
+git push -u origin main
+```
+
+### Step 2: Enable Instant Free Web Simulator (GitHub Pages)
+1. Go to your repository on GitHub.
+2. Click **Settings** $\rightarrow$ **Pages** (in the left sidebar).
+3. Under **Branch**, select `main` and folder `/ (root)`, then click **Save**.
+4. GitHub will give you a public URL (e.g. `https://<YOUR-USERNAME>.github.io/slider-crank-mechanism/`). Anyone can now open and use your interactive simulator in their browser!
+
+### Step 3: Run in Google Colab (Cloud Notebook)
+Open [Google Colab](https://colab.research.google.com/), click **GitHub** tab, paste your repository URL, and open `Slider_Crank_Simulation_Colab.ipynb` to run the simulation directly in the cloud!

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider-Crank Mechanism Kinematic & Dynamic Simulation | Dhruv Chauhan (24JE0497)</title>
+    <!-- Chart.js for high performance real-time graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #0d47a1;
+            --secondary: #00796b;
+            --accent: #e91e63;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.5px; }
+        header .meta { font-size: 0.9rem; color: #bbdefb; font-weight: 500; }
+
+        .container {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .form-group label span { color: var(--primary); font-weight: 700; }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .metric-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        .metric-box .label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .metric-box .value { font-size: 1rem; color: var(--secondary); font-weight: 700; margin-top: 2px; }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        /* Visualization Area */
+        .vis-area {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .canvas-container {
+            position: relative;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            height: 380px;
+        }
+        canvas#mechCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .hud-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: monospace;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            pointer-events: none;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            height: 260px;
+            position: relative;
+        }
+        .chart-card h4 {
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>SLIDER-CRANK KINEMATIC & DYNAMIC SIMULATION</h1>
+        <div class="meta">Python Engine Reference & Interactive Web Simulator</div>
+    </div>
+    <div class="meta" style="text-align: right;">
+        <strong>Dhruv Chauhan (24JE0497)</strong><br>
+        <span>Theory of Machines & Engine Dynamics</span>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Controls Sidebar -->
+    <aside>
+        <div class="card">
+            <div class="card-title">Mechanism Presets</div>
+            <select id="presetSelect" onchange="loadPreset(this.value)">
+                <option value="petrol">Single-Cylinder Petrol Engine</option>
+                <option value="motorcycle">High-Speed Motorcycle Engine</option>
+                <option value="diesel">Heavy-Duty Diesel Engine</option>
+                <option value="offset">Offset Slider-Crank (e = 15mm)</option>
+                <option value="compressor">Reciprocating Air Compressor</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Mechanism Geometry</div>
+            <div class="form-group">
+                <label>Crank Radius (r): <span id="rVal">50 mm</span></label>
+                <input type="range" id="rSlider" min="20" max="100" step="1" value="50" oninput="updateParams()">
+            </div>
+            <div class="form-group">
+                <label>Con-Rod Length (l): <span id="lVal">200 mm</span></label>
+                <input type="range" id="lSlider" min="100" max="400" step="5" value="200" oninput="updateParams()">
+            </div>
+            <div class="form-group">
+                <label>Offset (e): <span id="eVal">0 mm</span></label>
+                <input type="range" id="eSlider" min="-30" max="30" step="1" value="0" oninput="updateParams()">
+            </div>
+            <div class="form-group">
+                <label>Cylinder Bore (D): <span id="boreVal">80 mm</span></label>
+                <input type="range" id="boreSlider" min="40" max="150" step="1" value="80" oninput="updateParams()">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Operating & Dynamics</div>
+            <div class="form-group">
+                <label>Speed (RPM) [0 - 8000]: <span id="rpmVal">1800 RPM</span></label>
+                <input type="range" id="rpmSlider" min="0" max="8000" step="50" value="1800" oninput="updateParams()">
+            </div>
+            <div class="form-group">
+                <label>Piston Mass (mp): <span id="mpVal">0.85 kg</span></label>
+                <input type="range" id="mpSlider" min="0.1" max="5.0" step="0.05" value="0.85" oninput="updateParams()">
+            </div>
+            <div class="form-group">
+                <label>Peak Pressure: <span id="pVal">45 bar</span></label>
+                <input type="range" id="pSlider" min="5" max="100" step="1" value="45" oninput="updateParams()">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Calculated Key Metrics</div>
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="label">Stroke</div>
+                    <div class="value" id="dispStroke">100 mm</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Ratio n (l/r)</div>
+                    <div class="value" id="dispN">4.00</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Mean Speed</div>
+                    <div class="value" id="dispVmean">6.0 m/s</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Peak Accel</div>
+                    <div class="value" id="dispAmax">2221 m/s²</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Mean Torque</div>
+                    <div class="value" id="dispTmean">37 N·m</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Power</div>
+                    <div class="value" id="dispPower">6.98 kW</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Playback Controls</div>
+            <div class="form-group">
+                <label>Scrub Crank Angle: <span id="thetaVal">0.0°</span></label>
+                <input type="range" id="scrubSlider" min="0" max="360" step="1" value="0" oninput="onScrub(this.value)">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">⏸ Pause</button>
+                <button class="btn btn-outline" onclick="stepAngle(-5)">-5°</button>
+                <button class="btn btn-outline" onclick="stepAngle(5)">+5°</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Visualization Area -->
+    <main class="vis-area">
+        <!-- 2D Canvas -->
+        <div class="canvas-container">
+            <canvas id="mechCanvas"></canvas>
+            <div class="hud-overlay" id="hud">
+                θ: 0.0° | s: 0.0 mm<br>
+                v: 0.00 m/s | a: 0.0 m/s²<br>
+                Torque: 0.0 N·m
+            </div>
+        </div>
+
+        <!-- 4 Real-Time Analytical Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h4>Piston Kinematics: Displacement & Velocity</h4>
+                <canvas id="chartKin1"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>Piston Acceleration vs Crank Angle</h4>
+                <canvas id="chartKin2"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>Dynamic Forces (Gas, Inertia & Piston Effort)</h4>
+                <canvas id="chartDyn"></canvas>
+            </div>
+            <div class="chart-card">
+                <h4>Turning Moment Diagram (TMD)</h4>
+                <canvas id="chartTmd"></canvas>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+// Physics & Simulation Parameters
+let params = {
+    r: 0.05,        // m
+    l: 0.20,        // m
+    e: 0.0,         // m
+    bore: 0.08,     // m
+    rpm: 1800,      // rpm
+    mp: 0.85,       // kg
+    pPeakBar: 45,   // bar
+};
+
+let currentThetaRad = 0;
+let isPlaying = true;
+let animSpeed = 0.5;
+
+const canvas = document.getElementById("mechCanvas");
+const ctx = canvas.getContext("2d");
+
+// Presets
+const PRESETS = {
+    petrol: { r: 50, l: 200, e: 0, bore: 80, rpm: 1800, mp: 0.85, p: 45 },
+    motorcycle: { r: 27, l: 105, e: 0, bore: 67, rpm: 7500, mp: 0.22, p: 60 },
+    diesel: { r: 75, l: 300, e: 0, bore: 120, rpm: 1500, mp: 2.4, p: 85 },
+    offset: { r: 50, l: 200, e: 15, bore: 85, rpm: 1200, mp: 0.9, p: 40 },
+    compressor: { r: 35, l: 130, e: 0, bore: 70, rpm: 1450, mp: 0.6, p: 12 },
+};
+
+function loadPreset(name) {
+    let p = PRESETS[name];
+    document.getElementById("rSlider").value = p.r;
+    document.getElementById("lSlider").value = p.l;
+    document.getElementById("eSlider").value = p.e;
+    document.getElementById("boreSlider").value = p.bore;
+    document.getElementById("rpmSlider").value = p.rpm;
+    document.getElementById("mpSlider").value = p.mp;
+    document.getElementById("pSlider").value = p.p;
+    updateParams();
+}
+
+function updateParams() {
+    params.r = parseFloat(document.getElementById("rSlider").value) / 1000;
+    params.l = parseFloat(document.getElementById("lSlider").value) / 1000;
+    params.e = parseFloat(document.getElementById("eSlider").value) / 1000;
+    params.bore = parseFloat(document.getElementById("boreSlider").value) / 1000;
+    params.rpm = parseFloat(document.getElementById("rpmSlider").value);
+    params.mp = parseFloat(document.getElementById("mpSlider").value);
+    params.pPeakBar = parseFloat(document.getElementById("pSlider").value);
+
+    // Update labels
+    document.getElementById("rVal").innerText = (params.r * 1000).toFixed(0) + " mm";
+    document.getElementById("lVal").innerText = (params.l * 1000).toFixed(0) + " mm";
+    document.getElementById("eVal").innerText = (params.e * 1000).toFixed(0) + " mm";
+    document.getElementById("boreVal").innerText = (params.bore * 1000).toFixed(0) + " mm";
+    document.getElementById("rpmVal").innerText = params.rpm.toFixed(0) + " RPM";
+    document.getElementById("mpVal").innerText = params.mp.toFixed(2) + " kg";
+    document.getElementById("pVal").innerText = params.pPeakBar.toFixed(0) + " bar";
+
+    computeCycleMetrics();
+    updateCharts();
+}
+
+// Exact Kinematic & Dynamic Equations
+function solveAt(theta) {
+    let r = params.r;
+    let l = params.l;
+    let e = params.e;
+    let omega = 2 * Math.PI * params.rpm / 60;
+    let n = l / r;
+
+    let sinT = Math.sin(theta);
+    let cosT = Math.cos(theta);
+
+    let sinPhi = (r * sinT - e) / l;
+    sinPhi = Math.max(-1, Math.min(1, sinPhi));
+    let phi = Math.asin(sinPhi);
+    let cosPhi = Math.cos(phi);
+
+    let dphi_dtheta = (r * cosT) / (l * cosPhi);
+    let omegaC = omega * dphi_dtheta;
+
+    let xA = r * cosT;
+    let yA = r * sinT;
+
+    let xB = xA + Math.sqrt(Math.max(0, l*l - Math.pow(e - yA, 2)));
+    let yB = e;
+
+    let hypTdc = l + r;
+    let xTdc = Math.sqrt(hypTdc*hypTdc - e*e);
+    let hypBdc = l - r;
+    let xBdc = Math.sqrt(hypBdc*hypBdc - e*e);
+    let stroke = xTdc - xBdc;
+    let s = xTdc - xB;
+
+    let dx_dtheta = -r * sinT - r * Math.tan(phi) * cosT;
+    let v = omega * dx_dtheta;
+
+    let d2x_dtheta2 = -r * cosT - r * ((1 / (cosPhi*cosPhi)) * dphi_dtheta * cosT - Math.tan(phi) * sinT);
+    let a = omega * omega * d2x_dtheta2;
+
+    // Dynamics
+    let area = Math.PI * Math.pow(params.bore / 2, 2);
+    // Polytropic expansion pressure model
+    let pNet = params.pPeakBar * 1e5 * Math.exp(-2.5 * (theta % (2*Math.PI)) / Math.PI);
+    if ((theta % (2*Math.PI)) > Math.PI) {
+        pNet = 1.013e5 * (1 + 8 * Math.pow(((theta % (2*Math.PI)) - Math.PI) / Math.PI, 2));
+    }
+    let fGas = pNet * area;
+    let fInertia = params.mp * a;
+    let fP = fGas + fInertia;
+    let fQ = fP / cosPhi;
+    let fN = fP * Math.tan(phi);
+    let fT = fP * Math.sin(theta + phi) / cosPhi;
+    let torque = fT * r;
+
+    return { xA, yA, xB, yB, stroke, s, v, a, fGas, fInertia, fP, fN, fT, torque, omega, phi };
+}
+
+function computeCycleMetrics() {
+    let stroke = 2 * params.r;
+    let n = params.l / params.r;
+    let vMean = 2 * stroke * (params.rpm / 60);
+    let omega = 2 * Math.PI * params.rpm / 60;
+    let aMax = params.r * omega * omega * (1 + 1 / n);
+
+    let sumT = 0;
+    let pts = 360;
+    for (let i = 0; i < pts; i++) {
+        let th = (i * 2 * Math.PI) / pts;
+        sumT += solveAt(th).torque;
+    }
+    let tMean = sumT / pts;
+    let powerKw = (tMean * omega) / 1000;
+
+    document.getElementById("dispStroke").innerText = (stroke * 1000).toFixed(1) + " mm";
+    document.getElementById("dispN").innerText = n.toFixed(2);
+    document.getElementById("dispVmean").innerText = vMean.toFixed(1) + " m/s";
+    document.getElementById("dispAmax").innerText = aMax.toFixed(0) + " m/s²";
+    document.getElementById("dispTmean").innerText = tMean.toFixed(1) + " N·m";
+    document.getElementById("dispPower").innerText = powerKw.toFixed(2) + " kW";
+}
+
+// Canvas Drawing
+function resizeCanvas() {
+    let rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+}
+window.addEventListener("resize", resizeCanvas);
+
+function drawMechanism() {
+    let w = canvas.width;
+    let h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    let state = solveAt(currentThetaRad);
+
+    // Scale & origin
+    let maxDim = params.r + params.l + 0.08;
+    let scale = Math.min(w * 0.75 / maxDim, h * 0.65 / (params.r * 2.8));
+    let ox = w * 0.22;
+    let oy = h * 0.52;
+
+    function toPx(x, y) {
+        return [ox + x * scale, oy - y * scale];
+    }
+
+    let [pxO, pyO] = toPx(0, 0);
+    let [pxA, pyA] = toPx(state.xA, state.yA);
+    let [pxB, pyB] = toPx(state.xB, state.yB);
+
+    // 1. Stroke axis
+    let [sX1, sY1] = toPx(-params.r * 1.2, params.e);
+    let [sX2, sY2] = toPx((params.r + params.l) * 1.3, params.e);
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(sX1, sY1);
+    ctx.lineTo(sX2, sY2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. Crank orbit circle
+    ctx.strokeStyle = "rgba(100, 116, 139, 0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(pxO, pyO, params.r * scale, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // 3. Cylinder Walls
+    let pWidth = 0.07 * scale;
+    let pHeight = 0.05 * scale;
+    let cylStart = pxO + (params.l - params.r - 0.02) * scale;
+    let cylEnd = pxO + (params.l + params.r + 0.07) * scale;
+    let cylTop = pyO - params.e * scale - pHeight * 0.6;
+    let cylBot = pyO - params.e * scale + pHeight * 0.6;
+
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cylStart, cylTop);
+    ctx.lineTo(cylEnd, cylTop);
+    ctx.moveTo(cylStart, cylBot);
+    ctx.lineTo(cylEnd, cylBot);
+    ctx.stroke();
+
+    // 4. Ground Pivot O
+    ctx.fillStyle = "#1e293b";
+    ctx.beginPath();
+    ctx.moveTo(pxO, pyO);
+    ctx.lineTo(pxO - 10, pyO + 16);
+    ctx.lineTo(pxO + 10, pyO + 16);
+    ctx.closePath();
+    ctx.fill();
+
+    // 5. Crank Arm
+    ctx.strokeStyle = "#e11d48";
+    ctx.lineWidth = 7;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(pxO, pyO);
+    ctx.lineTo(pxA, pyA);
+    ctx.stroke();
+
+    // 6. Connecting Rod
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(pxA, pyA);
+    ctx.lineTo(pxB, pyB);
+    ctx.stroke();
+
+    // 7. Piston
+    ctx.fillStyle = "#94a3b8";
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 2;
+    ctx.fillRect(pxB - pWidth/2, pyB - pHeight/2, pWidth, pHeight);
+    ctx.strokeRect(pxB - pWidth/2, pyB - pHeight/2, pWidth, pHeight);
+
+    // Piston Rings
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(pxB - pWidth/4, pyB - pHeight/2);
+    ctx.lineTo(pxB - pWidth/4, pyB + pHeight/2);
+    ctx.moveTo(pxB, pyB - pHeight/2);
+    ctx.lineTo(pxB, pyB + pHeight/2);
+    ctx.stroke();
+
+    // 8. Joints
+    ctx.fillStyle = "#0f172a";
+    ctx.beginPath();
+    ctx.arc(pxO, pyO, 5, 0, 2*Math.PI);
+    ctx.arc(pxA, pyA, 6, 0, 2*Math.PI);
+    ctx.arc(pxB, pyB, 5, 0, 2*Math.PI);
+    ctx.fill();
+
+    // HUD Update
+    let deg = ((currentThetaRad * 180 / Math.PI) % 360).toFixed(1);
+    document.getElementById("hud").innerHTML = 
+        `θ: ${deg}° | s: ${(state.s*1000).toFixed(1)} mm<br>` +
+        `v: ${state.v.toFixed(2)} m/s | a: ${state.a.toFixed(1)} m/s²<br>` +
+        `Torque: ${state.torque.toFixed(1)} N·m`;
+}
+
+// Real-Time Charts Setup
+let chartKin1, chartKin2, chartDyn, chartTmd;
+
+function initCharts() {
+    let thetasDeg = [];
+    for (let i = 0; i <= 360; i += 5) thetasDeg.push(i);
+
+    let k1Ctx = document.getElementById("chartKin1").getContext("2d");
+    chartKin1 = new Chart(k1Ctx, {
+        type: 'line',
+        data: {
+            labels: thetasDeg,
+            datasets: [
+                { label: 'Disp (mm)', data: [], borderColor: '#2563eb', borderWidth: 2, yAxisID: 'y1', pointRadius: 0 },
+                { label: 'Vel (m/s)', data: [], borderColor: '#16a34a', borderWidth: 2, yAxisID: 'y2', pointRadius: 0 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'θ (deg)', font: { size: 10 } } },
+                y1: { position: 'left', title: { display: true, text: 'Disp (mm)', font: { size: 9 } } },
+                y2: { position: 'right', title: { display: true, text: 'Vel (m/s)', font: { size: 9 } }, grid: { drawOnChartArea: false } }
+            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+    });
+
+    let k2Ctx = document.getElementById("chartKin2").getContext("2d");
+    chartKin2 = new Chart(k2Ctx, {
+        type: 'line',
+        data: {
+            labels: thetasDeg,
+            datasets: [{ label: 'Acceleration (m/s²)', data: [], borderColor: '#9333ea', borderWidth: 2, pointRadius: 0 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'θ (deg)', font: { size: 10 } } },
+                y: { title: { display: true, text: 'a (m/s²)', font: { size: 10 } } }
+            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+    });
+
+    let dCtx = document.getElementById("chartDyn").getContext("2d");
+    chartDyn = new Chart(dCtx, {
+        type: 'line',
+        data: {
+            labels: thetasDeg,
+            datasets: [
+                { label: 'Gas Force (kN)', data: [], borderColor: '#ea580c', borderWidth: 2, pointRadius: 0 },
+                { label: 'Inertia (kN)', data: [], borderColor: '#0284c7', borderWidth: 2, pointRadius: 0 },
+                { label: 'Piston Effort (kN)', data: [], borderColor: '#16a34a', borderWidth: 2.5, pointRadius: 0 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'θ (deg)', font: { size: 10 } } },
+                y: { title: { display: true, text: 'Force (kN)', font: { size: 10 } } }
+            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+    });
+
+    let tCtx = document.getElementById("chartTmd").getContext("2d");
+    chartTmd = new Chart(tCtx, {
+        type: 'line',
+        data: {
+            labels: thetasDeg,
+            datasets: [{ label: 'Turning Moment T(θ) (N·m)', data: [], borderColor: '#e11d48', borderWidth: 2, fill: true, backgroundColor: 'rgba(225, 29, 72, 0.15)', pointRadius: 0 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'θ (deg)', font: { size: 10 } } },
+                y: { title: { display: true, text: 'Torque (N·m)', font: { size: 10 } } }
+            },
+            plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+    });
+}
+
+function updateCharts() {
+    let sData = [], vData = [], aData = [], fGasData = [], fIData = [], fPData = [], tData = [];
+    for (let deg = 0; deg <= 360; deg += 5) {
+        let th = deg * Math.PI / 180;
+        let res = solveAt(th);
+        sData.push(res.s * 1000);
+        vData.push(res.v);
+        aData.push(res.a);
+        fGasData.push(res.fGas / 1000);
+        fIData.push(res.fInertia / 1000);
+        fPData.push(res.fP / 1000);
+        tData.push(res.torque);
+    }
+
+    chartKin1.data.datasets[0].data = sData;
+    chartKin1.data.datasets[1].data = vData;
+    chartKin1.update('none');
+
+    chartKin2.data.datasets[0].data = aData;
+    chartKin2.update('none');
+
+    chartDyn.data.datasets[0].data = fGasData;
+    chartDyn.data.datasets[1].data = fIData;
+    chartDyn.data.datasets[2].data = fPData;
+    chartDyn.update('none');
+
+    chartTmd.data.datasets[0].data = tData;
+    chartTmd.update('none');
+}
+
+function togglePlay() {
+    isPlaying = !isPlaying;
+    document.getElementById("playBtn").innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+}
+
+function stepAngle(deg) {
+    isPlaying = false;
+    document.getElementById("playBtn").innerText = "▶ Play";
+    currentThetaRad = (currentThetaRad + deg * Math.PI / 180) % (2 * Math.PI);
+    syncScrub();
+}
+
+function onScrub(val) {
+    isPlaying = false;
+    document.getElementById("playBtn").innerText = "▶ Play";
+    currentThetaRad = parseFloat(val) * Math.PI / 180;
+    document.getElementById("thetaVal").innerText = parseFloat(val).toFixed(1) + "°";
+}
+
+function syncScrub() {
+    let deg = (currentThetaRad * 180 / Math.PI) % 360;
+    if (deg < 0) deg += 360;
+    document.getElementById("scrubSlider").value = deg;
+    document.getElementById("thetaVal").innerText = deg.toFixed(1) + "°";
+}
+
+// Main 60 FPS animation loop
+let lastTime = 0;
+function animate(time) {
+    if (!lastTime) lastTime = time;
+    let dt = (time - lastTime) / 1000;
+    lastTime = time;
+
+    if (isPlaying) {
+        let omega = 2 * Math.PI * params.rpm / 60;
+        currentThetaRad = (currentThetaRad + omega * dt * animSpeed) % (2 * Math.PI);
+        syncScrub();
+    }
+
+    drawMechanism();
+    requestAnimationFrame(animate);
+}
+
+window.onload = function() {
+    resizeCanvas();
+    initCharts();
+    updateParams();
+    requestAnimationFrame(animate);
+};
+</script>
+</body>
+</html>
