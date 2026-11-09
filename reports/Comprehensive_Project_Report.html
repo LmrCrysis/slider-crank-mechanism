@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design & Simulation of a Slider-Crank Mechanism | Formal Project Report | Dhruv Chauhan</title>
+    <style>
+        :root {
+            --primary: #0d47a1;
+            --secondary: #1565c0;
+            --accent: #d32f2f;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #f1f5f9; color: var(--dark); line-height: 1.65; padding: 30px; }
+        
+        .report-container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px 65px;
+            border-radius: 8px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+        }
+
+        /* Title Page */
+        .cover-page {
+            text-align: center;
+            padding: 60px 0 80px 0;
+            border-bottom: 3px double #94a3b8;
+            margin-bottom: 40px;
+        }
+        .cover-title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .cover-subtitle {
+            font-size: 1.25rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 35px;
+        }
+        .cover-meta {
+            margin: 30px auto;
+            display: inline-block;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 35px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        .cover-meta table td { padding: 4px 12px; }
+        .cover-meta td.label { font-weight: 600; color: #475569; }
+        .cover-meta td.val { font-weight: 700; color: var(--primary); }
+
+        /* Typography */
+        h1, h2, h3, h4 { color: var(--primary); margin-top: 30px; margin-bottom: 14px; font-weight: 700; }
+        h1 { font-size: 1.6rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        h2 { font-size: 1.3rem; color: var(--secondary); }
+        h3 { font-size: 1.05rem; color: #334155; }
+        p { margin-bottom: 14px; text-align: justify; font-size: 0.95rem; }
+
+        /* Math Display */
+        .equation {
+            background: #f8fafc;
+            border-left: 4px solid var(--secondary);
+            padding: 12px 18px;
+            margin: 16px 0;
+            font-family: "Cambria Math", "Times New Roman", serif;
+            font-size: 1.05rem;
+            overflow-x: auto;
+        }
+
+        /* Tables */
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 0.9rem;
+        }
+        table.data-table th, table.data-table td {
+            border: 1px solid var(--border);
+            padding: 9px 14px;
+            text-align: left;
+        }
+        table.data-table th { background: #f1f5f9; color: #1e293b; font-weight: 700; }
+        table.data-table tr:nth-child(even) { background: #fafbfc; }
+        .status-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* Figures */
+        .figure-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            margin: 22px 0;
+            text-align: center;
+        }
+        .figure-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .figure-caption {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* Callouts */
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 0 6px 6px 0;
+            margin: 18px 0;
+            font-size: 0.92rem;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white; padding: 0; }
+            .report-container { box-shadow: none; padding: 20px 30px; }
+            .page-break { page-break-before: always; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+    <!-- Action Bar -->
+    <div class="no-print" style="text-align: right; margin-bottom: 20px;">
+        <button onclick="window.print()" style="background: #0d47a1; color: white; border: none; padding: 10px 20px; font-weight: 700; border-radius: 6px; cursor: pointer;">
+            🖨️ Print / Save as PDF Report
+        </button>
+    </div>
+
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div class="cover-title">DESIGN AND SIMULATION OF A SLIDER-CRANK MECHANISM</div>
+        <div class="cover-subtitle">Python-Based Kinematic and Dynamic Analysis Tool</div>
+        <p style="text-align: center; color: #64748b; font-size: 1rem; max-width: 750px; margin: 0 auto 20px auto;">
+            A formal engineering design project report covering exact closed-form kinematics, dynamic force equilibrium, Turning Moment Diagrams, flywheel sizing, and harmonic vibration analysis.
+        </p>
+
+        <div class="cover-meta">
+            <table>
+                <tr><td class="label">Candidate Name:</td><td class="val">Dhruv Chauhan</td></tr>
+                <tr><td class="label">Registration / Roll No:</td><td class="val">24JE0497</td></tr>
+                <tr><td class="label">Course / Discipline:</td><td class="val">Theory of Machines / Mechanical Engineering</td></tr>
+                <tr><td class="label">Operating Speed Range:</td><td class="val">0 RPM to 8000 RPM (Default: 100 RPM)</td></tr>
+                <tr><td class="label">Computational Engine:</td><td class="val">Python 3.11, NumPy, SciPy, Matplotlib</td></tr>
+                <tr><td class="label">Repository:</td><td class="val">github.com/LmrCrysis/slider-crank-mechanism</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chapter 1: Introduction -->
+    <h1>Chapter 1: Introduction & Project Overview</h1>
+    <p>
+        The slider-crank mechanism is the core mechanical linkage used to transform linear reciprocating motion into rotary motion in internal combustion (IC) engines, or continuous rotary motion into reciprocating pressure pulses in gas compressors and pumps.
+    </p>
+    <p>
+        Modern automotive engineering requires rapid iterative evaluation of mechanism geometry ($r, l, e$), reciprocating masses, and gas indicator pressures to optimize engine breathing, minimize cylinder liner friction, and avoid crankshaft torsional resonance. This project implements a comprehensive computational simulation suite that combines exact closed-form analytical equations with real-time graphical visualization, automated unit testing, and flywheel sizing.
+    </p>
+
+    <div class="callout">
+        <strong>Key Engineering Objectives Achieved:</strong>
+        <ul style="margin-left: 20px; margin-top: 6px;">
+            <li>Exact closed-form displacement, velocity, and acceleration solvers (eliminating truncation errors).</li>
+            <li>Dynamic force resolution (reciprocating inertia, gas pressure, piston effort, and side thrust).</li>
+            <li>Turning Moment Diagram (TMD) integration and precision flywheel mass moment of inertia sizing.</li>
+            <li>Fast Fourier Transform (FFT) harmonic order analysis (orders $1\theta$ through $8\theta$).</li>
+            <li>Operational stability across the entire speed spectrum from 0 RPM up to 8000 RPM.</li>
+        </ul>
+    </div>
+
+    <!-- Chapter 2: Theoretical Formulation -->
+    <h1 class="page-break">Chapter 2: Mathematical Derivations & Physics Models</h1>
+    <h2>2.1 Kinematic Formulations</h2>
+    <p>
+        Let $r$ represent the crank radius, $l$ the connecting rod length, $e$ the stroke axis offset, and $\theta = \omega t$ the crank angle. The obliquity ratio is defined as $n = l/r$.
+    </p>
+    <div class="equation">
+        <strong>Connecting Rod Angle (&phi;):</strong><br>
+        &phi; = arcsin[(r &middot; sin&theta; - e) / l]
+    </div>
+    <div class="equation">
+        <strong>Exact Piston Position (x<sub>B</sub>) & Displacement from TDC (s):</strong><br>
+        x<sub>B</sub>(&theta;) = r &middot; cos&theta; + &radic;[l<sup>2</sup> - (r &middot; sin&theta; - e)<sup>2</sup>]<br>
+        s(&theta;) = &radic;[(l + r)<sup>2</sup> - e<sup>2</sup>] - x<sub>B</sub>(&theta;)
+    </div>
+    <div class="equation">
+        <strong>Exact Closed-Form Velocity (v<sub>B</sub>):</strong><br>
+        v<sub>B</sub>(&theta;) = -&omega; &middot; r &middot; [ sin&theta; + tan&phi; &middot; cos&theta; ]
+    </div>
+    <div class="equation">
+        <strong>Exact Closed-Form Acceleration (a<sub>B</sub>):</strong><br>
+        a<sub>B</sub>(&theta;) = -&omega;<sup>2</sup> &middot; r &middot; [ cos&theta; - tan&phi; &middot; sin&theta; + (r &middot; cos<sup>2</sup>&theta;) / (l &middot; cos<sup>3</sup>&phi;) ]
+    </div>
+
+    <h2>2.2 Dynamic Force Equilibrium & Turning Moment</h2>
+    <p>
+        The reciprocating mass $m_{\text{rec}} = m_{\text{piston}} + m_{\text{rod}}(1 - k_{\text{cg}})$ exerts an inertia force $F_I = -m_{\text{rec}} \cdot a_B$. Combining this with combustion gas force $F_g = (P_{\text{cyl}} - P_{\text{atm}}) \cdot A_p$ yields the net driving piston effort $F_P = F_g + F_I$.
+    </p>
+    <div class="equation">
+        <strong>Connecting Rod Force (F<sub>Q</sub>):</strong> F<sub>Q</sub> = F<sub>P</sub> / cos&phi;<br>
+        <strong>Cylinder Wall Side Thrust (F<sub>N</sub>):</strong> F<sub>N</sub> = F<sub>P</sub> &middot; tan&phi;<br>
+        <strong>Crankshaft Turning Moment (Torque T):</strong> T(&theta;) = F<sub>P</sub> &middot; r &middot; [ sin&theta; + sin(2&theta;) / (2&radic;[n<sup>2</sup> - sin<sup>2</sup>&theta;]) ]
+    </div>
+
+    <h2>2.3 Flywheel Design Sizing</h2>
+    <div class="equation">
+        <strong>Energy Fluctuation (&Delta;E):</strong> &Delta;E = max[&int;(T - T<sub>mean</sub>)d&theta;] - min[&int;(T - T<sub>mean</sub>)d&theta;]<br>
+        <strong>Required Flywheel Inertia:</strong> I<sub>flywheel</sub> = &Delta;E / (C<sub>s</sub> &middot; &omega;<sup>2</sup>)
+    </div>
+
+    <!-- Chapter 3: Visual Results & Plots -->
+    <h1 class="page-break">Chapter 3: Simulation Results & Graphical Analysis</h1>
+    <p>
+        The following high-resolution performance plots were computed for the standard mechanism geometry ($r = 50\text{ mm}$, $l = 200\text{ mm}$, $D = 80\text{ mm}$, default speed $= 100\text{ RPM}$):
+    </p>
+
+    <div class="figure-card">
+        <img src="kinematics_analysis.png" alt="Kinematics Plot">
+        <div class="figure-caption">Figure 1: Piston Displacement (mm), Velocity (m/s), and Acceleration (m/s²) vs. Crank Angle (Exact vs. Series Approximation).</div>
+    </div>
+
+    <div class="figure-card">
+        <img src="dynamics_forces.png" alt="Dynamic Forces Plot">
+        <div class="figure-caption">Figure 2: Dynamic Forces (Gas Force Fg, Reciprocating Inertia FI, Piston Effort FP, and Cylinder Side Thrust FN).</div>
+    </div>
+
+    <div class="figure-card page-break">
+        <img src="turning_moment_diagram.png" alt="Turning Moment Diagram">
+        <div class="figure-caption">Figure 3: Crankshaft Turning Moment Diagram (TMD) showing Excess/Deficit Energy Loops and Cumulative Energy Fluctuation.</div>
+    </div>
+
+    <div class="figure-card">
+        <img src="harmonics_polar.png" alt="Harmonics & Polar Diagram">
+        <div class="figure-caption">Figure 4: Fourier Harmonic Vibration Order Spectrum (Orders 1&theta; - 8&theta;) and Polar Torque Diagram.</div>
+    </div>
+
+    <!-- Chapter 4: Verification & Validation -->
+    <h1 class="page-break">Chapter 4: Benchmark Verification & Automated Test Suite</h1>
+    <p>
+        The mathematical models are verified using 11 rigorous automated unit tests implemented with Pytest. All tests passed with 100% precision:
+    </p>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Test Identifier</th>
+                <th>Validation Focus</th>
+                <th>Expected Benchmark</th>
+                <th>Simulation Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>test_tdc_and_bdc_positions</code></td>
+                <td>Dead-center velocities</td>
+                <td>v(0) = 0.000 m/s; v(&pi;) = 0.000 m/s</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_finite_difference_derivatives</code></td>
+                <td>Closed-form derivatives</td>
+                <td>Central difference O(h²) error &lt; 0.001 m/s</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_stroke_length</code></td>
+                <td>Stroke geometry (inline & offset)</td>
+                <td>Stroke = &radic;[(l+r)²-e²] - &radic;[(l-r)²-e²]</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_speed_range_0_to_8000_rpm</code></td>
+                <td>Boundary speed stability</td>
+                <td>v = 0 at 0 RPM; stable at 8000 RPM</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_torque_at_dead_centers</code></td>
+                <td>Zero torque at dead centers</td>
+                <td>T(0) = 0 N&middot;m; T(&pi;) = 0 N&middot;m</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_force_balance_along_connecting_rod</code></td>
+                <td>Force equilibrium</td>
+                <td>F<sub>Q</sub>cos&phi; = F<sub>P</sub>; F<sub>N</sub> = F<sub>P</sub>tan&phi;</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_pure_inertia_energy_conservation</code></td>
+                <td>First Law of Thermodynamics</td>
+                <td>&oint; T<sub>inertia</sub> d&theta; = 0.000 J</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_standard_textbook_engine_benchmark</code></td>
+                <td>Norton literature test case</td>
+                <td>&phi; = 10.18&deg;, v = -9.41 m/s at 45&deg;</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_adams_matlab_inline_slider_benchmark</code></td>
+                <td>Multibody simulation comparison</td>
+                <td>Max stroke = 0.200 m exactly</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_flywheel_sizing_and_harmonics</code></td>
+                <td>TMD integration & FFT orders</td>
+                <td>Harmonics 1&theta; - 8&theta; evaluated</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+            <tr>
+                <td><code>test_approximation_convergence_with_obliquity_ratio</code></td>
+                <td>Series convergence rate</td>
+                <td>Error strictly decays as n increases</td>
+                <td><span class="status-badge">PASSED</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Chapter 5: Conclusion -->
+    <h1 class="page-break">Chapter 5: Conclusions & Engineering Significance</h1>
+    <p>
+        The <strong>Slider-Crank Kinematic and Dynamic Analysis Tool</strong> successfully models the mechanical and thermodynamic behavior of reciprocating mechanisms. Key conclusions from this work include:
+    </p>
+    <ol style="margin-left: 25px; margin-bottom: 20px; font-size: 0.95rem;">
+        <li><strong>Exact Kinematic Precision:</strong> Closed-form equations eliminate truncation errors inherent in classical textbook series expansions, which is essential at high engine speeds.</li>
+        <li><strong>Inertia Force Scaling:</strong> At speeds up to 8000 RPM, reciprocating inertia forces scale quadratically, reaching over 4,000 G's of acceleration, placing massive tensile loads on connecting rod bolts during the exhaust stroke.</li>
+        <li><strong>Friction Mitigation via Offset:</strong> Offsetting the cylinder axis by 10 mm reduces maximum side thrust during the power stroke, significantly reducing cylinder liner wear and friction loss.</li>
+        <li><strong>Universal Accessibility:</strong> Providing both a native Python Desktop GUI and a cross-platform Web Simulator (GitHub Pages) enables researchers and students to explore mechanism dynamics without specialized software installation.</li>
+    </ol>
+
+    <div style="border-top: 1px solid #cbd5e1; padding-top: 25px; margin-top: 40px; text-align: center; color: #64748b; font-size: 0.85rem;">
+        <strong>Project Candidate:</strong> Dhruv Chauhan (24JE0497) | <strong>Academic Year:</strong> 2026–2027<br>
+        Department of Mechanical & Automobile Engineering | Code Repository: <code>github.com/LmrCrysis/slider-crank-mechanism</code>
+    </div>
+</div>
+
+</body>
+</html>
