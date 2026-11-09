@@ -322,7 +322,7 @@ def main():
     parser.add_argument("--conrod", type=float, default=200.0, help="Connecting rod length in mm (default: 200 mm)")
     parser.add_argument("--offset", type=float, default=0.0, help="Stroke line offset in mm (default: 0 mm)")
     parser.add_argument("--bore", type=float, default=80.0, help="Cylinder bore in mm (default: 80 mm)")
-    parser.add_argument("--rpm", type=float, default=1800.0, help="Rotational speed in RPM (range: 0 to 8000 RPM, default: 1800)")
+    parser.add_argument("--rpm", type=float, default=100.0, help="Rotational speed in RPM (range: 0 to 8000 RPM, default: 100)")
     parser.add_argument("--mp", type=float, default=0.85, help="Piston mass in kg (default: 0.85)")
     parser.add_argument("--mrod", type=float, default=1.20, help="Connecting rod mass in kg (default: 1.20)")
     parser.add_argument("--ppeak", type=float, default=45.0, help="Peak gas pressure in bar (default: 45 bar)")

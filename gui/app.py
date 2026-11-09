@@ -25,7 +25,7 @@ from gui.plot_panels import PlotPanels
 
 PRESETS = {
     "Single-Cylinder Petrol Engine (Standard)": {
-        "r": 50.0, "l": 200.0, "e": 0.0, "rpm": 1800.0,
+        "r": 50.0, "l": 200.0, "e": 0.0, "rpm": 100.0,
         "m_p": 0.85, "m_rod": 1.2, "bore": 80.0, "p_peak": 45.0,
         "cycle": EngineCycleType.POLYTROPIC_EXPANSION
     },
@@ -66,7 +66,7 @@ class SliderCrankApp:
             crank_length=0.05,
             con_rod_length=0.20,
             offset=0.0,
-            rpm=1800.0,
+            rpm=100.0,
             piston_mass=0.85,
             con_rod_mass=1.20,
             bore_diameter=0.080,
@@ -178,12 +178,12 @@ class SliderCrankApp:
         dyn_grp = ttk.LabelFrame(scroll_frame, text="Operating & Dynamic Parameters", padding=8)
         dyn_grp.pack(fill=tk.X, pady=(0, 10))
 
-        self.rpm_entry = self._create_input_row(dyn_grp, "Speed (RPM) [0-8000]:", "1800.0")
+        self.rpm_entry = self._create_input_row(dyn_grp, "Speed (RPM) [0-8000]:", "100.0")
         self.rpm_scale = ttk.Scale(
             dyn_grp, from_=0.0, to=8000.0, orient=tk.HORIZONTAL,
             command=self._on_rpm_scale_move
         )
-        self.rpm_scale.set(1800.0)
+        self.rpm_scale.set(100.0)
         self.rpm_scale.pack(fill=tk.X, pady=(0, 6))
 
         self.piston_mass_entry = self._create_input_row(dyn_grp, "Piston Mass mp (kg):", "0.85")

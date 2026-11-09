@@ -15,7 +15,7 @@ class SliderCrankParameters:
     crank_length: float = 0.05       # r: crank radius in meters (e.g. 50 mm)
     con_rod_length: float = 0.20     # l: connecting rod length in meters (e.g. 200 mm)
     offset: float = 0.0              # e: offset of slider stroke axis in meters (0 for inline)
-    rpm: float = 1800.0              # Crankshaft rotational speed in RPM
+    rpm: float = 100.0               # Crankshaft rotational speed in RPM (default: 100 RPM)
     piston_mass: float = 0.85        # m_p: mass of piston assembly in kg
     con_rod_mass: float = 1.20       # m_rod: mass of connecting rod in kg
     con_rod_cg_ratio: float = 0.35   # Distance of CG from crank-pin end / con_rod_length

@@ -240,8 +240,8 @@
         <div class="card">
             <div class="card-title">Operating & Dynamics</div>
             <div class="form-group">
-                <label>Speed (RPM) [0 - 8000]: <span id="rpmVal">1800 RPM</span></label>
-                <input type="range" id="rpmSlider" min="0" max="8000" step="50" value="1800" oninput="updateParams()">
+                <label>Speed (RPM) [0 - 8000]: <span id="rpmVal">100 RPM</span></label>
+                <input type="range" id="rpmSlider" min="0" max="8000" step="50" value="100" oninput="updateParams()">
             </div>
             <div class="form-group">
                 <label>Piston Mass (mp): <span id="mpVal">0.85 kg</span></label>
@@ -338,7 +338,7 @@ let params = {
     l: 0.20,        // m
     e: 0.0,         // m
     bore: 0.08,     // m
-    rpm: 1800,      // rpm
+    rpm: 100,       // rpm (default: 100 RPM)
     mp: 0.85,       // kg
     pPeakBar: 45,   // bar
 };
@@ -352,7 +352,7 @@ const ctx = canvas.getContext("2d");
 
 // Presets
 const PRESETS = {
-    petrol: { r: 50, l: 200, e: 0, bore: 80, rpm: 1800, mp: 0.85, p: 45 },
+    petrol: { r: 50, l: 200, e: 0, bore: 80, rpm: 100, mp: 0.85, p: 45 },
     motorcycle: { r: 27, l: 105, e: 0, bore: 67, rpm: 7500, mp: 0.22, p: 60 },
     diesel: { r: 75, l: 300, e: 0, bore: 120, rpm: 1500, mp: 2.4, p: 85 },
     offset: { r: 50, l: 200, e: 15, bore: 85, rpm: 1200, mp: 0.9, p: 40 },
